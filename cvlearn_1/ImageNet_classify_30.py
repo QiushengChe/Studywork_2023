@@ -31,9 +31,12 @@ loss_list = []
 acc_t1_list = []
 acc_t5_list = []  # top five acc
 time_list = []
-itex_mat = 100
+atol_list = []
+itex_max = 100
+itex_num = 0
+atol = 1000
 
-for itex_num in range(itex_mat):
+while atol > 1e-3:
     begin_time = time.time()
     model.train()
     running_loss = 0.0
@@ -68,9 +71,21 @@ for itex_num in range(itex_mat):
     acc_t1_list.append(top1_accuracy)
     acc_t5_list.append(top5_accuracy)
     time_list.append((end_time - begin_time))
-    print("Top-1 Accuracy:", acc_t1_list[itex_num])
-    print("Top-5 Accuracy:", acc_t5_list[itex_num])
+    if itex_num == 0:
+        atol = max(abs(acc_t1_list[itex_num]), abs(acc_t5_list[itex_num]))
+    else:
+        atol = max(abs((acc_t1_list[itex_num] - acc_t1_list[itex_num - 1])),
+                   abs((acc_t5_list[itex_num] - acc_t5_list[itex_num - 1])))
+    atol_list.append(atol)
+    print("Top-1 Accuracy:", acc_t1_list[itex_num], "Top-5 Accuracy:", acc_t5_list[itex_num], "Atol:",
+          atol_list[itex_num])
     print("Consume Time:", time_list[itex_num])
+
+    if itex_num < itex_max:
+        itex_num += 1
+    else:
+        break
 scio.savemat("./itex.mat",
-             {'loss_list': loss_list, 'acc_t1_list': acc_t1_list, 'acc_t5_list': acc_t5_list, 'time_list': time_list})
+             {'loss_list': loss_list, 'acc_t1_list': acc_t1_list, 'acc_t5_list': acc_t5_list, 'time_list': time_list,
+              'atol_list': atol_list})
 debug_point = 1
