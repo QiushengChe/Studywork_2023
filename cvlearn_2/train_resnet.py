@@ -10,12 +10,11 @@ import torch.optim as optim
 
 batch_size = 48
 num_workers = 16
-lr=1e-3
-directory='/GPFS/data/heyangliu/Data'
-num_classes=5
-num_epochs=100
+lr = 1e-3
+directory = '/GPFS/data/heyangliu/Data'
+num_classes = 5
+num_epochs = 100
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 
 data_transforms = {
     'train': transforms.Compose([
@@ -31,8 +30,9 @@ data_transforms = {
 }
 
 train_set = VOCDataset(directory, 'train', transforms=data_transforms['train'])
-train_loader = DataLoader(train_set, batch_size=batch_size, collate_fn=collate_wrapper, shuffle=True,
-                          num_workers=num_workers)
+# train_loader = DataLoader(train_set, batch_size=batch_size, collate_fn=collate_wrapper, shuffle=True,
+#                           num_workers=num_workers)
+train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
 val_set = VOCDataset(directory, 'val', transforms=data_transforms['val'])
 val_loader = DataLoader(val_set, batch_size=batch_size, collate_fn=collate_wrapper, shuffle=True,
@@ -66,7 +66,7 @@ for epoch in range(1, num_epochs + 1):
         loss.backward()
         optimizer.step()
         losses.append(loss.item())
-        #print('Epoch: {}, Samples: {}/{}, Loss: {}'.format(epoch, idx * batch_size,
+        # print('Epoch: {}, Samples: {}/{}, Loss: {}'.format(epoch, idx * batch_size,
         #                                                   len(train_loader) * batch_size,
         #                                                   loss.item()))
         train_loss = torch.mean(torch.tensor(losses))
@@ -90,10 +90,9 @@ for epoch in range(1, num_epochs + 1):
                 predictions = torch.cat((predictions, pred))
                 targets = torch.cat((targets, target))
 
-
     val_loss /= len(val_loader)
-    val_mAP= average_precision_score(target.reshape(-1, num_classes).cpu(), pred.reshape(-1, num_classes).cpu())
-    print('Validation set: Average loss: {:.4f}, mAP: {:.4f}'.format(val_loss,val_mAP))
+    val_mAP = average_precision_score(target.reshape(-1, num_classes).cpu(), pred.reshape(-1, num_classes).cpu())
+    print('Validation set: Average loss: {:.4f}, mAP: {:.4f}'.format(val_loss, val_mAP))
 
     if (len(val_losses) > 0) and (val_loss < min(val_losses)):
         torch.save(model.state_dict(), "checkpoints/lr{}_model_{}_{:.4f}.pt".format(lr, epoch, val_mAP))
@@ -102,5 +101,3 @@ for epoch in range(1, num_epochs + 1):
 
     train_losses.append(train_loss)
     val_losses.append(val_loss)
-
-
