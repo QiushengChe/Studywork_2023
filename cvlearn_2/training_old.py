@@ -13,15 +13,17 @@ import matplotlib
 matplotlib.use('TkAgg')  # to work on x11 forwarding
 
 from torch import Tensor
+
 import time
 import timeit
 from datetime import datetime
 import os
 import numpy as np
+
 import PIL.Image
 import sklearn.metrics
 
-from vocparseclslabels import PascalVOC
+from vocparseclslabels_old import PascalVOC
 
 from typing import Callable, Optional
 
@@ -54,7 +56,8 @@ class dataset_voc(Dataset):
     def __getitem__(self, idx):
 
         image = PIL.Image.open(
-            f"D:/Code/Train_data/studywork_2023/Homework2/Data/JPEGImages/{self.imgfilenames[idx]}.jpg").convert('RGB')
+            f"D:\Code\Train_data\studywork_2023\VOCdevkit\VOC2012/JPEGImages/{self.imgfilenames[idx]}.jpg").convert(
+            'RGB')
 
         classes = [1 if i == 0 else 0 if i == -1 else i for i in list(self.df.iloc[idx])]
 
@@ -189,7 +192,7 @@ def traineval2_model_nocv(dataloader_train, dataloader_test, model, criterion, o
             bestweights = model.state_dict()
             # TODO track current best performance measure and epoch
             torch.save(model.state_dict(),
-                       f"models/model_{datetime.now().strftime('%d-%m-%Y_%H:%M:%S')}_{round(float(avgperfmeasure), 4)}.pth")
+                       f"model_{datetime.now().strftime('%d-%m-%Y_%H:%M:%S')}_{round(float(avgperfmeasure), 4)}.pth")
             best_measure = avgperfmeasure
 
             # TODO save your scores
@@ -243,9 +246,9 @@ def runstuff():
 
     # datasets
     image_datasets = {}
-    image_datasets['train'] = dataset_voc(root_dir='D:/Code/Train_data/studywork_2023/Homework2/Data', trvaltest=0,
+    image_datasets['train'] = dataset_voc(root_dir='D:\Code\Train_data\studywork_2023\VOCdevkit\VOC2012', trvaltest=0,
                                           transform=data_transforms['train'])
-    image_datasets['val'] = dataset_voc(root_dir='D:/Code/Train_data/studywork_2023/Homework2/Data', trvaltest=1,
+    image_datasets['val'] = dataset_voc(root_dir='D:\Code\Train_data\studywork_2023\VOCdevkit\VOC2012', trvaltest=1,
                                         transform=data_transforms['val'])
 
     # dataloaders
@@ -291,7 +294,7 @@ def runstuff():
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend(loc="upper right")
-    plt.savefig('plots/traintest_loss.png')
+    plt.savefig('traintest_loss.png')
 
     # plot pref
     plt.figure(1)
@@ -299,7 +302,7 @@ def runstuff():
     plt.title('test prefs')
     plt.xlabel('epochs')
     plt.ylabel('mAP')
-    plt.savefig('plots/mAP.png')
+    plt.savefig('mAP.png')
 
 
 if __name__ == '__main__':

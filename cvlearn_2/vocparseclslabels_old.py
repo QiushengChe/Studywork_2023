@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import numpy as np
 
 
 class PascalVOC:
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     #       c1  c2  c3 ... c20
     # img   0   1   0  ...  0
 
-    pv = PascalVOC('D:/Code/Train_data/studywork_2023/Homework2/Data')
+    pv = PascalVOC('D:\Code\Train_data\studywork_2023\VOCdevkit\VOC2012')
 
     cat_name = 'car'
     dataset = 'val'
